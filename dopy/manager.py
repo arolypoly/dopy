@@ -249,6 +249,16 @@ class DoManager(object):
         json.pop('status', None)
         return json
 
+    def get_droplets_by_tag(self, tag_name):
+        if self.api_version == 2:
+            params = { 'tag_name' : tag_name }
+            json = self.request('/droplets', params)
+            for index in range(len(json['droplets'])):
+                self.populate_droplet_ips(json['droplets'][index])
+            return json['droplets']
+        else:
+            raise DoError(self.v2_api_required_str)
+
     def populate_droplet_ips(self, droplet):
         droplet[u'ip_address'] = ''
         for networkIndex in range(len(droplet['networks']['v4'])):
