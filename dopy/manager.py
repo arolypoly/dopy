@@ -624,6 +624,115 @@ class DoManager(object):
             return json
         else:
             raise DoError(self.v2_api_required_str)
+# block_storage========================================
+
+    def all_volumes(self):
+        """
+        Lists all of the Block Storage volumes available on the account.
+        """
+        json = self.request('/volumes')
+        return json['volumes']
+
+    def new_volume(self, name, size, region_id, description=""):
+        """
+        Creates a new Block Storage volume with the given size in gigabytes.
+        """
+        params = {
+            'name': str(name),
+            'size_gigabytes': int(size),
+            'description': str(description),
+            'region': str(region_id),
+        }
+        json = self.request('/volumes', params=params, method='POST')
+        return json["volume"]
+
+    def show_volume(self, volume_id=None, volume_name=None, region_id=None):
+        """
+        Shows information about a Block Storage volume.
+
+        Volumes can be retrieved by id or by name.
+        """
+        if volume_id is not None and volume_name is not None:
+            raise DoError('Only one of volume_id and volume_name is required to retrieve a Block Storage volume.' \
+                          'Set one of the variables and try again,')
+        elif volume_id is None and volume_name is None:
+            raise DoError('volume_id or volume_name is required to retrieve a Block Storage volume.' \
+                          'Set one of the variables and try again,')
+        elif volume_id is not None:
+            json = self.request('/volumes/%s' % volume_id)
+        elif region_id is None:
+            raise DoError('region_id is required to delete a Block Storage Volume by name.')
+        else:
+            params = {'name': volume_name, 'region': region_id}
+            json = self.request('/volumes', params=params)
+        return json['volume']
+
+    def destroy_volume(self, volume_id=None, volume_name=None, region_id=None):
+        """
+        Deletes a Block Storage volume.
+
+        Volumes can be deleted by id or by name.
+        """
+        if volume_id is not None and volume_name is not None:
+            raise DoError('Only one of volume_id and volume_name is required to delete a Block Storage volume.' \
+                          'Set one of the variables and try again,')
+        elif volume_id is None and volume_name is None:
+            raise DoError('volume_id or volume_name is required to delete a Block Storage volume.' \
+                          'Set one of the variables and try again,')
+        elif volume_id is not None:
+            json = self.request('/volumes/%s' % volume_id, method='DELETE')
+        elif region_id is None:
+            raise DoError('region_id is required to delete a Block Storage Volume by name.')
+        else:
+            params = {'name': volume_name, 'region': region_id}
+            json = self.request('/volumes', params=params, method='DELETE')
+        return True
+
+    def volume_v2_action(self, volume_id, action_type, params=None):
+        """
+        Give a command to a Block Storage volume.
+        """
+        if params is None:
+            params = {}
+        params['type'] = action_type
+
+        if volume_id is not None:
+            json = self.request('/volumes/%s/actions' % volume_id,
+                                params=params, method='POST')
+        else:
+            json = self.request('/volumes/actions',
+                                params=params, method='POST')
+        return json
+
+    def attach_volume(self, volume_id, droplet_id, region_id):
+        """
+        Attaches a Block Storage volume to a droplet.
+
+        Each volume may only be attached to a single Droplet. However,
+        up to five volumes may be attached to a Droplet at a time.
+        """
+        params = {'droplet_id': droplet_id, 'region_id': region_id}
+        json = self.volume_v2_action(volume_id, 'attach', params)
+        return json['action']
+
+    def remove_volume(self, volume_id, droplet_id, region_id):
+        """
+        Detaches a Block Storage volume from a droplet.
+        """
+        params = {'droples_id': droplet_id, 'region': region_id}
+        json = self.volume_v2_action(volume_id, 'detach', params)
+        return json['action']
+
+    def resize_volume(self, volume_id, size, region_id):
+        """
+        Resizes a Block Storage volume.
+
+        Volumes may only be resized upwards. The maximum size for
+        a volume is 16TiB.
+        """
+        params = {'size_gigabytes': int(size), 'region': region_id}
+        json = self.volume_v2_action(volume_id, 'resize', params)
+        return json['action']
 
 #low_level========================================
     def request(self, path, params={}, method='GET'):
