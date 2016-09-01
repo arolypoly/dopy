@@ -646,46 +646,18 @@ class DoManager(object):
         json = self.request('/volumes', params=params, method='POST')
         return json["volume"]
 
-    def show_volume(self, volume_id=None, volume_name=None, region_id=None):
+    def show_volume(self, volume_id):
         """
         Shows information about a Block Storage volume.
-
-        Volumes can be retrieved by id or by name.
         """
-        if volume_id is not None and volume_name is not None:
-            raise DoError('Only one of volume_id and volume_name is required to retrieve a Block Storage volume.' \
-                          'Set one of the variables and try again,')
-        elif volume_id is None and volume_name is None:
-            raise DoError('volume_id or volume_name is required to retrieve a Block Storage volume.' \
-                          'Set one of the variables and try again,')
-        elif volume_id is not None:
-            json = self.request('/volumes/%s' % volume_id)
-        elif region_id is None:
-            raise DoError('region_id is required to delete a Block Storage Volume by name.')
-        else:
-            params = {'name': volume_name, 'region': region_id}
-            json = self.request('/volumes', params=params)
+        json = self.request('/volumes/%s' % volume_id)
         return json['volume']
 
-    def destroy_volume(self, volume_id=None, volume_name=None, region_id=None):
+    def destroy_volume(self, volume_id):
         """
         Deletes a Block Storage volume.
-
-        Volumes can be deleted by id or by name.
         """
-        if volume_id is not None and volume_name is not None:
-            raise DoError('Only one of volume_id and volume_name is required to delete a Block Storage volume.' \
-                          'Set one of the variables and try again,')
-        elif volume_id is None and volume_name is None:
-            raise DoError('volume_id or volume_name is required to delete a Block Storage volume.' \
-                          'Set one of the variables and try again,')
-        elif volume_id is not None:
-            json = self.request('/volumes/%s' % volume_id, method='DELETE')
-        elif region_id is None:
-            raise DoError('region_id is required to delete a Block Storage Volume by name.')
-        else:
-            params = {'name': volume_name, 'region': region_id}
-            json = self.request('/volumes', params=params, method='DELETE')
+        json = self.request('/volumes/%s' % volume_id, method='DELETE')
         return True
 
     def volume_v2_action(self, volume_id, action_type, params=None):
@@ -711,7 +683,7 @@ class DoManager(object):
         Each volume may only be attached to a single Droplet. However,
         up to five volumes may be attached to a Droplet at a time.
         """
-        params = {'droplet_id': droplet_id, 'region_id': region_id}
+        params = {'droplet_id': droplet_id, 'region': region_id}
         json = self.volume_v2_action(volume_id, 'attach', params)
         return json['action']
 
@@ -719,7 +691,7 @@ class DoManager(object):
         """
         Detaches a Block Storage volume from a droplet.
         """
-        params = {'droples_id': droplet_id, 'region': region_id}
+        params = {'droplet_id': droplet_id, 'region': region_id}
         json = self.volume_v2_action(volume_id, 'detach', params)
         return json['action']
 
