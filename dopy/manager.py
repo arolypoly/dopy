@@ -65,7 +65,8 @@ class DoManager(object):
 
     def new_droplet(self, name, size_id, image_id, region_id,
             ssh_key_ids=None, virtio=True, private_networking=False,
-            backups_enabled=False, user_data=None, ipv6=False):
+            backups_enabled=False, user_data=None, ipv6=False,
+            monitoring=False):
 
         if self.api_version == 2:
             params = {
@@ -75,6 +76,7 @@ class DoManager(object):
                 'region': str(region_id),
                 'virtio': str(virtio).lower(),
                 'ipv6': str(ipv6).lower(),
+                'monitoring': str(monitoring).lower(),
                 'private_networking': str(private_networking).lower(),
                 'backups': str(backups_enabled).lower(),
             }
