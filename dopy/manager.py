@@ -64,8 +64,9 @@ class DoManager(object):
         return json['droplets']
 
     def new_droplet(self, name, size_id, image_id, region_id,
-            ssh_key_ids=None, virtio=True, private_networking=False,
-            backups_enabled=False, user_data=None, ipv6=False):
+            ssh_key_ids=None, monitoring=False, virtio=True,
+            private_networking=False, backups_enabled=False, user_data=None,
+            ipv6=False):
 
         if self.api_version == 2:
             params = {
@@ -73,6 +74,7 @@ class DoManager(object):
                 'size': str(size_id),
                 'image': str(image_id),
                 'region': str(region_id),
+                'monitoring': str(monitoring).lower(),
                 'virtio': str(virtio).lower(),
                 'ipv6': str(ipv6).lower(),
                 'private_networking': str(private_networking).lower(),
