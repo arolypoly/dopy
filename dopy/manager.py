@@ -80,7 +80,7 @@ class DoManager(object):
             }
             if ssh_key_ids:
                 # Need to be an array in v2
-                if isinstance(ssh_key_ids, basestring):
+                if isinstance(ssh_key_ids, str):
                     ssh_key_ids = [ssh_key_ids]
 
                 if type(ssh_key_ids) == list:
