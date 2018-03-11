@@ -77,6 +77,7 @@ class DoManager(object):
                 'monitoring': str(monitoring).lower(),
                 'virtio': str(virtio).lower(),
                 'ipv6': str(ipv6).lower(),
+                'monitoring': str(monitoring).lower(),
                 'private_networking': str(private_networking).lower(),
                 'backups': str(backups_enabled).lower(),
             }
